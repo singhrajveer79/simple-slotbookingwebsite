@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Slot Booking</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-xl mx-auto bg-white shadow-md rounded p-6">
+    <h1 class="text-2xl font-bold mb-4">Book a Slot</h1>
+    <form id="bookingForm" class="space-y-4">
+      <label class="block">
+        <span class="text-gray-700">Select Time Slot</span>
+        <select name="slot" class="mt-1 block w-full rounded border p-2" required></select>
+      </label>
+      <label class="block">
+        <span class="text-gray-700">Work Description</span>
+        <textarea name="purpose" class="mt-1 block w-full rounded border p-2" rows="3" required></textarea>
+      </label>
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Submit</button>
+    </form>
+    <p id="status" class="mt-4 text-green-600 hidden">Booking successful! You will be notified.</p>
+  </div>
+
+  <script>
+    const slotSelect = document.querySelector('select[name="slot"]');
+    for (let hour = 9; hour < 21; hour++) {
+      const ampm1 = hour >= 12 ? 'PM' : 'AM';
+      const ampm2 = hour + 1 >= 12 ? 'PM' : 'AM';
+      const label = `${hour % 12 || 12} ${ampm1} - ${(hour + 1) % 12 || 12} ${ampm2}`;
+      const option = document.createElement('option');
+      option.value = label;
+      option.textContent = label;
+      slotSelect.appendChild(option);
+    }
+
+    document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const slot = form.slot.value;
+      const purpose = form.purpose.value;
+      const res = await fetch('/book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slot, purpose })
+      });
+      if (res.ok) {
+        document.getElementById('status').classList.remove('hidden');
+        form.reset();
+      }
+    });
+  </script>
+</body>
+</html>
